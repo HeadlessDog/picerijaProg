@@ -1,12 +1,17 @@
 package picerijasProg;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
 
 public class PasutijumaIzveide {
 	private static	String adrese;
 	private static	int talr;
+	private static boolean sanemtUzvietas;
 	private	static String vards;
 	private	static double lielums;
 	private	static double cenasLielumaKoef;
@@ -24,10 +29,11 @@ public class PasutijumaIzveide {
 	private	static double piegadesCena = 0;
 	private	static double kopejaCena;
 	private	static int pasutijumaNumurs;
-	private	static Path datuFails;
+	private	static Path datuFails = Paths.get("C:\\Users\\2PT\\Documents\\2PTFolder\\picaDati.txt");
 	
 	public static void sastaditPasutijumu(boolean uzVietas) {
 		System.out.println("Sastade izsaukta, uzvietas : "+uzVietas);
+		sanemtUzvietas = uzVietas;
 		String tempString;
 		boolean valid;
 		do {
@@ -223,14 +229,67 @@ public class PasutijumaIzveide {
 		}while(!valid);
 		
 		picasCena = (katrasPiedevasCena*(double)piedevas.length + katrasMercesCena*(double)merces.length)*lielums*cenasLielumaKoef;
-		uzkoduKopejaCena = katrasUzkodasCena*uzkodas.length;
-		dzerienuKopejaCena = katraDzerienaCena*dzerieni.length;
+		if(uzkodas != null)uzkoduKopejaCena = katrasUzkodasCena*uzkodas.length;
+		else uzkoduKopejaCena = 0;
+		if(dzerieni != null)dzerienuKopejaCena = katraDzerienaCena*dzerieni.length;
+		else dzerienuKopejaCena = 0;
 		kopejaCena = picasCena+uzkoduKopejaCena+dzerienuKopejaCena+piegadesCena;
 		
 		pasutijumaNumurs = (int)(Math.random()*90000 + 10000);
 		
-		JOptionPane.showMessageDialog(null, picasCena+" "+uzkoduKopejaCena+" "+dzerienuKopejaCena+" "+kopejaCena);
+		if(saglabatPasutijumu() == true)
+			JOptionPane.showMessageDialog(null, "Pasūtījums veiksmīgi saglabāts!");
+		else
+			JOptionPane.showMessageDialog(null, "Dati netika saglabāti!", "Kļūda!", JOptionPane.ERROR_MESSAGE);
+			
 	}
 	
+	private static boolean saglabatPasutijumu()
+	{
+		try {
+			File fails = datuFails.toFile();
+			FileWriter write = new FileWriter(fails, true);
+			
+			if(!sanemtUzvietas)write.write("Adrese: "+adrese);
+			else write.write("Adrese: NAV");
+			write.write("\nTalr.: "+talr);
+			write.write("\nVards: "+ vards);
+			write.write("\nUzvietas: "+sanemtUzvietas);
+			write.write("\nPasūtījuma numurs: "+ pasutijumaNumurs);
+			write.write("\nLielums: "+lielums);
+			write.write("\nCenas/lieluma koeficients: "+cenasLielumaKoef);
+			write.write("\nPiedevas: ");
+			if(piedevas != null)
+			for(int i=0;i<piedevas.length;i++)
+				write.write(piedevas[i]+" ");
+			write.write("\nMerces: ");
+			if(merces != null)
+			for(int i=0;i<merces.length;i++)
+				write.write(merces[i]+" ");
+			write.write("\nUzkodas: ");
+			if(uzkodas != null)
+			for(int i=0;i<uzkodas.length;i++)
+				write.write(uzkodas[i]+" ");
+			write.write("\nDzerieni: ");
+			if(dzerieni != null)
+			for(int i=0;i<dzerieni.length;i++)
+				write.write(dzerieni[i]+" ");
+			write.write("\nIndividualas piedevas cena: "+katrasPiedevasCena);
+			write.write("\nIndividualas merces cena: "+katrasMercesCena);
+			write.write("\nIndividualas uzkodas cena: "+katrasUzkodasCena);
+			write.write("\nIndividuala dzeriena cena: "+katraDzerienaCena);
+			if(!sanemtUzvietas)write.write("\nPiegades cena: "+piegadesCena);
+			else write.write("\nPiegades cena: NAV");
+			write.write("\nPicas cena: "+picasCena);
+			write.write("\nKopeja uzkodu cena: "+uzkoduKopejaCena);
+			write.write("\nKopeja dzerienu cena: "+dzerienuKopejaCena);
+			write.write("\nKopējā pasūtījuma cena: "+kopejaCena);
+			write.close();
+			return true;
+		}catch(IOException e) {
+		 	return false;
+		}
+		
+	}
 
 }
